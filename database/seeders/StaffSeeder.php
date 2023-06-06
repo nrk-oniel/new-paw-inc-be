@@ -17,10 +17,11 @@ class StaffSeeder extends Seeder
     public function run()
     {
         Clinic::factory()->count(49)->create();
-        for ($i = 0;$i < 49;$i++){
+        for ($i = 0;$i < 5;$i++){
             User::create([
                 'username' => 'staff'.$i,
                 'email' => 'staff'.$i.'@gmail.com',
+                'address' => 'Jalan Garuda Kencana',
                 'password' => bcrypt('staff'.$i),
                 'role_id' => Role::ROLE_STAFF,
                 'clinic_id' => $i+1,

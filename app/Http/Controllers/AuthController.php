@@ -51,6 +51,7 @@ class AuthController extends Controller
             'username' => 'required|unique:users',
             'email' => 'required|email',
             'password' => 'required|string|confirmed',
+            'address' => 'required|string'
         ]);
         if($validator->fails()){
             return response()->json(['error'=>$validator->errors()], Response::HTTP_BAD_REQUEST);
@@ -89,13 +90,16 @@ class AuthController extends Controller
      */
     public function userProfile() {
         $console = new ConsoleOutput();
+        $array = [];
         $user = User::with(['clinic','role'])->find(auth()->user()->id);
         
-        $geocode = app('geocoder')->geocode($user->address)->get();
-        $array = array (
-            'lat' => $geocode[0]->getCoordinates()->getLatitude(),
-            'long' => $geocode[0]->getCoordinates()->getLongitude(),
-        );
+        if($user->role_id == 1){
+            $geocode = app('geocoder')->geocode($user->address)->get();
+            $array = array (
+                'lat' => $geocode[0]->getCoordinates()->getLatitude(),
+                'long' => $geocode[0]->getCoordinates()->getLongitude(),
+            );
+        }
         // return response()->json([
         //     "data" =>User::with(['clinic','role'])->find(auth()->user()->id),
         // ]);
