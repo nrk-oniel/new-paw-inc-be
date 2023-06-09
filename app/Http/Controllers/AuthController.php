@@ -39,6 +39,8 @@ class AuthController extends Controller
                 'message' => 'Unauthorized',
             ], Response::HTTP_UNAUTHORIZED);
         }
+        // $console = new ConsoleOutput();
+        // $console->writeln($token);
         return $this->createNewToken($token);
     }
     /**
@@ -112,7 +114,7 @@ class AuthController extends Controller
             "role_id" => $user->role_id,
             "created_at" => $user->created_at,
             "updated_at" => $user->updated_at,
-            "clinic" => $user->clinic,
+            "clinic_id" => $user->clinic->id,
             "role" => $user->role,
             "coordinates" => $array,
         ) ;

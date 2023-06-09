@@ -68,6 +68,8 @@ Route::middleware('authOnly')->group(function (){
         Route::post('/ticket/reject/{id}', [TicketController::class, 'reject']);
         // API to get schedule list
         Route::get('/schedule', [ScheduleController::class, 'show']);
+        //API to get schedule list based on clinic Id
+        Route::get('/schedule-by-clinic', [ScheduleController::class, 'showById']);
         // API to insert schedule for doctor
         Route::post('/schedule-create', [ScheduleController::class, 'store']);
     });
