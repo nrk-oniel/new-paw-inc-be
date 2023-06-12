@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateScheduleRequest;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Validator;
 
 class ScheduleController extends Controller
@@ -137,6 +138,9 @@ class ScheduleController extends Controller
      */
     public function showById(Request $request)
     {
+        // $console = new ConsoleOutput();
+        $clinic = auth()->user()->clinic->id;
+        // $console->write($clinic);
         $validator = Validator::make($request->all(), [
             'year' => 'required',
             'month' => 'required',
@@ -149,7 +153,7 @@ class ScheduleController extends Controller
         }
         $schedules = Schedule::where('year','=', $request->year)
             ->where('month','=', $request->month)
-            ->where('clinic_id','=',$request->clinicId)
+            ->where('clinic_id','=',$clinic)
             ->orderBy('date')
             ->orderBy('hour')
             ->orderBy('minute')->get();
