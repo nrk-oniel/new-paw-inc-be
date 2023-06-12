@@ -91,7 +91,7 @@ class AuthController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function userProfile() {
-        $console = new ConsoleOutput();
+        $clinic_id = 0;
         $array = [];
         $user = User::with(['clinic','role'])->find(auth()->user()->id);
         
@@ -102,9 +102,11 @@ class AuthController extends Controller
                 'long' => $geocode[0]->getCoordinates()->getLongitude(),
             );
         }
-        // return response()->json([
-        //     "data" =>User::with(['clinic','role'])->find(auth()->user()->id),
-        // ]);
+
+        if($user->role_id == 2){
+            $clinic_id = $user->clinic->id;
+        }
+
         $new_user_array = array (
             "id" => $user->id,
             "username" => $user->username,
@@ -114,7 +116,7 @@ class AuthController extends Controller
             "role_id" => $user->role_id,
             "created_at" => $user->created_at,
             "updated_at" => $user->updated_at,
-            "clinic_id" => $user->clinic->id,
+            "clinic_id" => $clinic_id,
             "role" => $user->role,
             "coordinates" => $array,
         ) ;
@@ -148,7 +150,6 @@ class AuthController extends Controller
                 }
             }
         */
-
     }
 
     public function updatePassword(Request $request)
