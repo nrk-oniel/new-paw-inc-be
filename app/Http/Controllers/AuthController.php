@@ -113,7 +113,7 @@ class AuthController extends Controller
             "email" => $user->email,
             "phone_number" => $user->phone_number,
             "address" => $user->address,
-            "role_id" => $user->role_id,
+            "role_id" => (int) $user->role_id,
             "created_at" => $user->created_at,
             "updated_at" => $user->updated_at,
             "clinic_id" => $clinic_id,
