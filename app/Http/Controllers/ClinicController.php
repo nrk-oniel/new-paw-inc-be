@@ -52,6 +52,11 @@ class ClinicController extends Controller
             array_push($new_array,$array);
         }
 
+        //Sort from shortest distance to furthest
+        usort($new_array,function($a,$b) {
+            return $a['distance'] <=> $b['distance'];
+        });
+
         return response()->json([
             'data' => $new_array,
         ]);

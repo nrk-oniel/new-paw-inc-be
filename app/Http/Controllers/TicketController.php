@@ -7,6 +7,7 @@ use App\Models\Ticket;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Validator;
 
 class TicketController extends Controller
@@ -88,6 +89,11 @@ class TicketController extends Controller
      */
     public function store(Request $request)
     {
+        $current_ticket = Ticket::with('clinic')
+                            ->where('user_id',auth()->user()->id)
+                            ->where('status',TICKET::ONGOING_STATUS)
+                            ->get()
+                            ->first();
         $validator = Validator::make($request->all(), [
             'clinic_id' => 'required',
             'schedule_id' => 'required',
@@ -96,6 +102,18 @@ class TicketController extends Controller
         ]);
         if($validator->fails()){
             return response()->json(['error'=>$validator->errors()], Response::HTTP_BAD_REQUEST);
+        };
+
+        //Check if customer has already made a ticket on the same schedule
+        $error_message = '';
+
+        if(!empty($current_ticket)){
+            if($request->clinic_id == $current_ticket->clinic_id){
+                $error_message = 'You already made an appoinment in this clinic !';
+            }else{
+                $error_message = 'You already made an appoinment at '.$current_ticket->clinic->clinic_name. ' !';
+            }
+            return response()->json(['error'=>$error_message], Response::HTTP_BAD_REQUEST);
         }
 
         $ticket = Ticket::create(
