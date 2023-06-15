@@ -92,7 +92,6 @@ class TicketController extends Controller
         $current_ticket = Ticket::with('clinic')
                             ->where('user_id',auth()->user()->id)
                             ->where('status',TICKET::ONGOING_STATUS)
-                            ->get()
                             ->first();
         $validator = Validator::make($request->all(), [
             'clinic_id' => 'required',
