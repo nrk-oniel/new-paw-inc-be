@@ -108,7 +108,7 @@ class AdminController extends Controller
     public function updateStaff(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'clinic_name' => 'required|unique:clinics',
+            'clinic_name' => 'required|unique:users,username,'.$id.'id',
             'email' => 'required|email',
             'phone_number' => 'required',
             'address' => 'required',
