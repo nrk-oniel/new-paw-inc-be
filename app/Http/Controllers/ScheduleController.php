@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateScheduleRequest;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Validator;
 
 class ScheduleController extends Controller
@@ -104,6 +105,55 @@ class ScheduleController extends Controller
         }
         $schedules = Schedule::where('year','=', $request->year)
             ->where('month','=', $request->month)
+            // ->where('clinic_id','=',$request->clinicId)
+            ->orderBy('date')
+            ->orderBy('hour')
+            ->orderBy('minute')->get();
+
+        $dates = [];
+        foreach($schedules as $s) {
+            $date = $s->date;
+            if(!key_exists($date, $dates)){
+                $dates[$date] = array();
+            }
+            $time = $s->hour.":".$s->minute;
+            if(!key_exists($time, $dates[$date])) {
+                $dates[$date][$time] = array();
+            }
+            array_push($dates[$date][$time], $s->doctor_name);
+        }
+        if(count($dates)==0){
+            $dates = null;
+        }
+        return response()->json([
+            'data' => ['schedules'=>$dates],
+        ]);
+    }
+
+        /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\Schedule  $schedule
+     * @return \Illuminate\Http\Response
+     */
+    public function showById(Request $request)
+    {
+        // $console = new ConsoleOutput();
+        $clinic = auth()->user()->clinic->id;
+        // $console->write($clinic);
+        $validator = Validator::make($request->all(), [
+            'year' => 'required',
+            'month' => 'required',
+        ]);
+        if($validator->fails()){
+            return response()->json([
+                'error'=>$validator->errors(),
+                'message'=>'FAILED TO GET DATA',
+            ], Response::HTTP_BAD_REQUEST);
+        }
+        $schedules = Schedule::where('year','=', $request->year)
+            ->where('month','=', $request->month)
+            ->where('clinic_id','=',$clinic)
             ->orderBy('date')
             ->orderBy('hour')
             ->orderBy('minute')->get();

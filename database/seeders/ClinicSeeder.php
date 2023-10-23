@@ -16,7 +16,7 @@ class ClinicSeeder extends Seeder
     {
         Clinic::create([
             'clinic_name' => 'Clinic Staff 1',
-            'clinic_address' => 'Clinic 1 Street',
+            'clinic_address' => 'Jalan Garuda Kencana',
         ]);
     }
 }

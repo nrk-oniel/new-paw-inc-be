@@ -7,6 +7,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Validator;
 
 class AdminController extends Controller
@@ -107,7 +108,7 @@ class AdminController extends Controller
     public function updateStaff(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'clinic_name' => 'required',
+            'clinic_name' => 'required|unique:users,username,'.$id.'id',
             'email' => 'required|email',
             'phone_number' => 'required',
             'address' => 'required',
@@ -118,7 +119,6 @@ class AdminController extends Controller
 
         $user = User::where('id','=',$id)
             ->where('role_id', Role::ROLE_STAFF)->first();
-
         if(is_null($user)) {
             return response()->json(['error'=>'FAILED TO SUBMIT DATA'], Response::HTTP_BAD_REQUEST);
         }
@@ -130,7 +130,7 @@ class AdminController extends Controller
         $user->address = $request->address;
         $user->password = bcrypt($request->clinic_name);
         $user->clinic->clinic_name = $request->clinic_name;
-        $user->clinic->clinic_address = $request->clinic_name;
+        $user->clinic->clinic_address = $request->address;
         $user->push();
 
         return response()->json([

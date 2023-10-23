@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Validator;
 
 class AuthController extends Controller
@@ -38,6 +39,8 @@ class AuthController extends Controller
                 'message' => 'Unauthorized',
             ], Response::HTTP_UNAUTHORIZED);
         }
+        // $console = new ConsoleOutput();
+        // $console->writeln($token);
         return $this->createNewToken($token);
     }
     /**
@@ -50,6 +53,7 @@ class AuthController extends Controller
             'username' => 'required|unique:users',
             'email' => 'required|email',
             'password' => 'required|string|confirmed',
+            'address' => 'required|string'
         ]);
         if($validator->fails()){
             return response()->json(['error'=>$validator->errors()], Response::HTTP_BAD_REQUEST);
@@ -87,10 +91,65 @@ class AuthController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function userProfile() {
+        $clinic_id = 0;
+        $array = [];
+        $user = User::with(['clinic','role'])->find(auth()->user()->id);
+        
+        if($user->role_id == 1){
+            $geocode = app('geocoder')->geocode($user->address)->get();
+            $array = array (
+                'lat' => $geocode[0]->getCoordinates()->getLatitude(),
+                'long' => $geocode[0]->getCoordinates()->getLongitude(),
+            );
+        }
+
+        if($user->role_id == 2){
+            $clinic_id = $user->clinic->id;
+        }
+
+        $new_user_array = array (
+            "id" => $user->id,
+            "username" => $user->username,
+            "email" => $user->email,
+            "phone_number" => $user->phone_number,
+            "address" => $user->address,
+            "role_id" => (int) $user->role_id,
+            "created_at" => $user->created_at,
+            "updated_at" => $user->updated_at,
+            "clinic_id" => $clinic_id,
+            "role" => $user->role,
+            "coordinates" => $array,
+        ) ;
+        // $console->writeln($new_user_array);
         return response()->json([
-            "data" =>User::with(['clinic','role'])->find(auth()->user()->id),
+            "data" =>$new_user_array,
         ]);
 
+        /*
+        Example Dummy Data
+            {
+                "id": 3,
+                "username": "customer",
+                "email": "customer@gmail.com",
+                "phone_number": "",
+                "address": "Jalan Aru Rawa Mekar Jaya",
+                "clinic_id": null,
+                "role_id": 1,
+                "created_at": "2023-06-03T15:17:01.000000Z",
+                "updated_at": "2023-06-03T15:17:01.000000Z",
+                "clinic": null,
+                "role": {
+                    "id": 1,
+                    "role_name": "Customer",
+                    "created_at": "2023-06-03T15:17:01.000000Z",
+                    "updated_at": "2023-06-03T15:17:01.000000Z"
+                },
+                "coordinates": {
+                    "lat": -6.312107,
+                    "long": 106.6972741
+                }
+            }
+        */
     }
 
     public function updatePassword(Request $request)

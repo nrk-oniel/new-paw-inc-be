@@ -18,7 +18,7 @@ class ClinicFactory extends Factory
     {
         return [
             'clinic_name' => $this->faker->name,
-            'clinic_address' => $this->faker->address,
+            'clinic_address' => 'Jalan Garuda Kencana',
         ];
     }
 }
